@@ -29,7 +29,7 @@ fun WelcomePage(onNavigateToFormPage: () -> Unit) {
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background) // 👈 dodane
+            .background(MaterialTheme.colorScheme.background)
     ) {
         AppLogo(width = 200, height = 200, padding = 5)
         Text(

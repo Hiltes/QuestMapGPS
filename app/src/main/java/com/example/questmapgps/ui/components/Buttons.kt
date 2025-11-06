@@ -1,11 +1,16 @@
 package com.example.questmapgps.ui.components
+import android.text.EmojiConsistency
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
@@ -16,10 +21,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.questmapgps.ui.theme.QuestMapGPSTheme
+import compose.icons.FeatherIcons
+import compose.icons.feathericons.Zap
 
 
 @Composable
@@ -32,6 +39,54 @@ fun AppButton(buttonText:String, operation: () -> Unit) {
         Text(buttonText,
             color = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.padding(horizontal = 15.dp, vertical = 5.dp)
+        )
+    }
+}
+
+@Composable
+fun InfoButton(operation: () -> Unit, padding: Int){
+    IconButton(
+        onClick = operation,
+        modifier = Modifier
+            .border(
+                width = 2.dp,
+                color = Color.Black,
+                shape = CircleShape
+            )
+            .background(
+                color = MaterialTheme.colorScheme.background,
+                shape = CircleShape
+            )
+            .padding(padding.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.Info,
+            contentDescription = "Pomoc i informacje",
+            tint = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+}
+
+@Composable
+fun FlashlightButton(operation: () -> Unit, padding: Int){
+    IconButton(
+        onClick = operation,
+        modifier = Modifier
+            .border(
+                width = 2.dp,
+                color = Color.Black,
+                shape = CircleShape
+            )
+            .background(
+                color = MaterialTheme.colorScheme.background,
+                shape = CircleShape
+            )
+            .padding(padding.dp)
+    ) {
+        Icon(
+            imageVector = FeatherIcons.Zap,
+            contentDescription = "Włącznik latarki",
+            tint = MaterialTheme.colorScheme.onPrimary
         )
     }
 }
@@ -130,5 +185,23 @@ fun CloseButtonPreview() {
 fun AppButtonSmallPreview() {
     QuestMapGPSTheme {
         AppButtonSmall("EnterSmall",{})
+    }
+}
+
+@Preview
+@Composable
+fun InfoButtonPreview() {
+    QuestMapGPSTheme {
+        InfoButton({},10)
+    }
+}
+
+
+
+@Preview
+@Composable
+fun FlashlightButtonPreview() {
+    QuestMapGPSTheme {
+        FlashlightButton({},10)
     }
 }

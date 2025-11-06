@@ -1,4 +1,4 @@
-package com.example.questmapgps.ui.components
+package com.example.questmapgps.ui.screens
 
 
 import androidx.compose.animation.AnimatedVisibility
@@ -29,33 +29,64 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.questmapgps.ui.navigation.NavGraph
+import com.example.questmapgps.ui.components.AppButtonSmall
+import com.example.questmapgps.ui.components.FlashlightButton
+import com.example.questmapgps.ui.components.InfoButton
+import com.example.questmapgps.ui.components.SettingsButton
+import com.example.questmapgps.ui.navigation.Routes
+import com.example.questmapgps.ui.screens.main_content.AboutAppPage
+import com.example.questmapgps.ui.screens.main_content.GamePage
+import com.example.questmapgps.ui.screens.main_content.SettingsPage
 import com.example.questmapgps.ui.theme.QuestMapGPSTheme
 
 
 @Composable
-fun Main_Scaffold() {
-    val navController = rememberNavController()
+fun Main_Scaffold(
+    startDestination: String = Routes.GAME,
+    parentNav: NavHostController
+) {
+    val innerNavController = rememberNavController()
 
     Scaffold(
-        topBar = {Topbar(
-            onNavigateGamePage = { navController.navigate("game")},
-            onNavigateToSettingsPage = { navController.navigate("settings")},
-            onNavigateAboutAppPage = {navController.navigate("about")},
-        )
-
+        topBar = {
+            Topbar(
+                onNavigateGamePage = { innerNavController.navigate(Routes.GAME) },
+                onNavigateToSettingsPage = { innerNavController.navigate(Routes.SETTINGS) },
+                onNavigateAboutAppPage = { innerNavController.navigate(Routes.ABOUT) },
+            )
         },
         bottomBar = {
-
+            BottomBar()
         }
     ) { innerPadding ->
-        NavGraph(
-            navController = navController,
+        NavHost(
+            navController = innerNavController,
+            startDestination = startDestination,
             modifier = Modifier.padding(innerPadding)
-        )
+        ) {
+            composable(Routes.GAME) {
+                GamePage(
+                    onNavigateBack = { parentNav.navigate(Routes.WELCOME) }
+                )
+            }
+            composable(Routes.SETTINGS) {
+                SettingsPage(
+                    onNavigateBack = { innerNavController.popBackStack() }
+                )
+            }
+            composable(Routes.ABOUT) {
+                AboutAppPage(
+                    onNavigateBack = { innerNavController.popBackStack() }
+                )
+            }
+        }
     }
 }
+
 
 @Composable
 fun Topbar(
@@ -96,7 +127,6 @@ fun Topbar(
             SettingsButton { onNavigateToSettingsPage() }
         }
 
-        // 🔹 Animowane rozwijanie przycisków
         AnimatedVisibility(
             visible = expanded,
             enter = expandVertically(),
@@ -110,16 +140,42 @@ fun Topbar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 AppButtonSmall("Strona Główna") { onNavigateGamePage() }
-                AppButtonSmall("O Aplikacji") { onNavigateAboutAppPage()}
+                AppButtonSmall("O Aplikacji") { onNavigateAboutAppPage() }
             }
         }
     }
 }
+
+@Composable
+fun BottomBar() {
+    Row(modifier =
+        Modifier
+            .padding(horizontal = 12.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.End
+    ){
+        Column(modifier = Modifier.padding(vertical = 10.dp)) {
+            FlashlightButton({},5)
+            InfoButton({},5)
+        }
+
+    }
+}
+
+
+
 
 @Preview
 @Composable
 fun TopbarPreview(){
     QuestMapGPSTheme {
         Topbar({},{},{})
+    }
+}
+
+@Preview
+@Composable
+fun BottomBarPreview() {
+    QuestMapGPSTheme {
+        BottomBar()
     }
 }
