@@ -1,0 +1,1 @@
+The application supports organizing and running outdoor or urban games. It allows participants to find points on a map, use hints, contact the organizer, and share their real-time location. It can be used for recreational, educational, and tourist events.
