@@ -1,5 +1,6 @@
 package com.example.questmapgps.ui.components
-import android.text.EmojiConsistency
+import android.content.Context
+import android.hardware.camera2.CameraManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,13 +21,20 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.questmapgps.ui.theme.QuestMapGPSTheme
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Zap
+import compose.icons.feathericons.ZapOff
 
 
 @Composable
@@ -50,7 +58,7 @@ fun InfoButton(operation: () -> Unit, padding: Int){
         modifier = Modifier
             .border(
                 width = 2.dp,
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.onPrimary,
                 shape = CircleShape
             )
             .background(
@@ -68,48 +76,59 @@ fun InfoButton(operation: () -> Unit, padding: Int){
 }
 
 @Composable
-fun FlashlightButton(operation: () -> Unit, padding: Int){
+fun FlashlightButton(padding: Int) {
+    val context = LocalContext.current
+    val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+    val cameraId = remember {
+        cameraManager.cameraIdList.firstOrNull() ?: ""
+    }
+
+    var isTorchOn by remember { mutableStateOf(false) }
+
     IconButton(
-        onClick = operation,
+        onClick = {
+            try {
+                cameraManager.setTorchMode(cameraId, !isTorchOn)
+                isTorchOn = !isTorchOn
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        },
         modifier = Modifier
-            .border(
-                width = 2.dp,
-                color = Color.Black,
-                shape = CircleShape
-            )
-            .background(
-                color = MaterialTheme.colorScheme.background,
-                shape = CircleShape
-            )
             .padding(padding.dp)
+            .clip(CircleShape)
+            .border(2.dp, MaterialTheme.colorScheme.onBackground, CircleShape)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Icon(
-            imageVector = FeatherIcons.Zap,
-            contentDescription = "Włącznik latarki",
-            tint = MaterialTheme.colorScheme.onPrimary
+            imageVector = if (isTorchOn) FeatherIcons.Zap else FeatherIcons.ZapOff,
+            contentDescription = if (isTorchOn) "Wyłącz latarkę" else "Włącz latarkę",
+            tint = if (isTorchOn)
+                MaterialTheme.colorScheme.onPrimary
+            else
+                MaterialTheme.colorScheme.onPrimary
         )
     }
 }
-
 @Composable
 fun AppButtonSmall(buttonText:String, operation: () -> Unit) {
     Button(
-        onClick = operation, // 👈 dodałem faktyczne użycie argumentu
+        onClick = operation,
         modifier = Modifier
             .padding(6.dp)
-            .height(32.dp) // 👈 mniejsza wysokość
-            .defaultMinSize(minHeight = 1.dp), // 👈 wyłącza domyślne 48dp
+            .height(32.dp)
+            .defaultMinSize(minHeight = 1.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.secondary,
+            containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary
         ),
         shape = RoundedCornerShape(10.dp),
-        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp) // 👈 mniej miejsca w środku
+        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
     ) {
         Text(
             text = buttonText,
-            color = MaterialTheme.colorScheme.tertiary, // zostawiłem Twój kolor
-            style = MaterialTheme.typography.labelSmall // 👈 mniejsza czcionka
+            color = MaterialTheme.colorScheme.onPrimary,
+            style = MaterialTheme.typography.labelSmall
         )
     }
 }
@@ -120,7 +139,7 @@ fun SettingsButton(operation: () -> Unit) {
         Icon(
             imageVector = Icons.Default.Settings,
             contentDescription = "Lubię to",
-            tint = MaterialTheme.colorScheme.tertiary
+            tint = MaterialTheme.colorScheme.onPrimary
         )
     }
 }
@@ -202,6 +221,6 @@ fun InfoButtonPreview() {
 @Composable
 fun FlashlightButtonPreview() {
     QuestMapGPSTheme {
-        FlashlightButton({},10)
+        FlashlightButton(10)
     }
 }

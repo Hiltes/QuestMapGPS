@@ -1,6 +1,7 @@
 package com.example.questmapgps.ui.theme
 
 import android.os.Build
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -10,8 +11,14 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.questmapgps.ui.sensors.rememberAmbientLightLevel
 
 private val DarkColorScheme = darkColorScheme(
     primary = LightBlue,
@@ -31,9 +38,7 @@ private val LightColorScheme = lightColorScheme(
     onTertiary = White,
     onPrimary = Black,
     background = Olive,
-    onBackground = Black
-
-
+    onBackground = Olive
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -56,25 +61,44 @@ private val AppShapes = Shapes(
 
 @Composable
 fun QuestMapGPSTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
+    useAmbientSensor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
+    val context = LocalContext.current
+    val ambientLight = if (useAmbientSensor) rememberAmbientLightLevel() else 1000f
+
+    val isDarkBySensor = ambientLight < 50f
+    val targetDarkTheme = if (useAmbientSensor) isDarkBySensor else isSystemInDarkTheme()
+
+
+    var darkTheme by remember { mutableStateOf(targetDarkTheme) }
+    LaunchedEffect(targetDarkTheme) {
+
+        kotlinx.coroutines.delay(250)
+        darkTheme = targetDarkTheme
+    }
+    val baseScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
 
+    val animatedColorScheme = baseScheme.copy(
+        primary = animateColorAsState(baseScheme.primary, label = "primary").value,
+        secondary = animateColorAsState(baseScheme.secondary, label = "secondary").value,
+        background = animateColorAsState(baseScheme.background, label = "background").value,
+        onBackground = animateColorAsState(baseScheme.onBackground, label = "onBackground").value,
+        surface = animateColorAsState(baseScheme.surface, label = "surface").value,
+        onSurface = animateColorAsState(baseScheme.onSurface, label = "onSurface").value
+    )
+
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = animatedColorScheme,
         typography = Typography,
-        content = content,
-        shapes = AppShapes
+        shapes = AppShapes,
+        content = content
     )
 }

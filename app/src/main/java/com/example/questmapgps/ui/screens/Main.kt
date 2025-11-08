@@ -51,37 +51,39 @@ fun Main_Scaffold(
 ) {
     val innerNavController = rememberNavController()
 
-    Scaffold(
-        topBar = {
-            Topbar(
-                onNavigateGamePage = { innerNavController.navigate(Routes.GAME) },
-                onNavigateToSettingsPage = { innerNavController.navigate(Routes.SETTINGS) },
-                onNavigateAboutAppPage = { innerNavController.navigate(Routes.ABOUT) },
-            )
-        },
-        bottomBar = {
-            BottomBar()
-        }
-    ) { innerPadding ->
-        NavHost(
-            navController = innerNavController,
-            startDestination = startDestination,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable(Routes.GAME) {
-                GamePage(
-                    onNavigateBack = { parentNav.navigate(Routes.WELCOME) }
+    QuestMapGPSTheme {
+        Scaffold(
+            topBar = {
+                Topbar(
+                    onNavigateGamePage = { innerNavController.navigate(Routes.GAME) },
+                    onNavigateToSettingsPage = { innerNavController.navigate(Routes.SETTINGS) },
+                    onNavigateAboutAppPage = { innerNavController.navigate(Routes.ABOUT) },
                 )
+            },
+            bottomBar = {
+                BottomBar()
             }
-            composable(Routes.SETTINGS) {
-                SettingsPage(
-                    onNavigateBack = { innerNavController.popBackStack() }
-                )
-            }
-            composable(Routes.ABOUT) {
-                AboutAppPage(
-                    onNavigateBack = { innerNavController.popBackStack() }
-                )
+        ) { innerPadding ->
+            NavHost(
+                navController = innerNavController,
+                startDestination = startDestination,
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                composable(Routes.GAME) {
+                    GamePage(
+                        onNavigateBack = { parentNav.navigate(Routes.WELCOME) }
+                    )
+                }
+                composable(Routes.SETTINGS) {
+                    SettingsPage(
+                        onNavigateBack = { innerNavController.popBackStack() }
+                    )
+                }
+                composable(Routes.ABOUT) {
+                    AboutAppPage(
+                        onNavigateBack = { innerNavController.popBackStack() }
+                    )
+                }
             }
         }
     }
@@ -96,7 +98,7 @@ fun Topbar(
 
 ) {
     var expanded by remember { mutableStateOf(false) }
-
+    QuestMapGPSTheme {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -114,14 +116,14 @@ fun Topbar(
                 Icon(
                     imageVector = if (expanded) Icons.Default.Close else Icons.Default.Menu,
                     contentDescription = "Menu",
-                    tint = MaterialTheme.colorScheme.tertiary
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
 
             Text(
                 text = "Nazwa Gry",
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.tertiary
+                color = MaterialTheme.colorScheme.onPrimary
             )
 
             SettingsButton { onNavigateToSettingsPage() }
@@ -145,6 +147,7 @@ fun Topbar(
         }
     }
 }
+    }
 
 @Composable
 fun BottomBar() {
@@ -153,8 +156,13 @@ fun BottomBar() {
             .padding(horizontal = 12.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.End
     ){
-        Column(modifier = Modifier.padding(vertical = 10.dp)) {
-            FlashlightButton({},5)
+        Column(
+            modifier = Modifier
+                .padding(vertical = 10.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.End
+            ) {
+            FlashlightButton(5)
             InfoButton({},5)
         }
 
