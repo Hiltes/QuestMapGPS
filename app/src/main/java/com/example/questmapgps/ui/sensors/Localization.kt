@@ -47,7 +47,7 @@ class LocationHelper(context: Context) {
 
 @Composable
 fun PointInfoDialog(
-    pointData: PointData,
+    pointData: com.example.questmapgps.ui.screens.main_content.PointData,
     onDismiss: () -> Unit
 ) {
     AlertDialog(

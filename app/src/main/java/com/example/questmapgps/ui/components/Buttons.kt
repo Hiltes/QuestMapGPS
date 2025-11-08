@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
@@ -33,8 +34,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.questmapgps.ui.theme.QuestMapGPSTheme
 import compose.icons.FeatherIcons
+import compose.icons.feathericons.Lock
+import compose.icons.feathericons.Unlock
 import compose.icons.feathericons.Zap
 import compose.icons.feathericons.ZapOff
+import io.github.dellisd.spatialk.geojson.Position
+import kotlin.time.Duration.Companion.seconds
 
 
 @Composable
@@ -74,6 +79,36 @@ fun InfoButton(operation: () -> Unit, padding: Int){
         )
     }
 }
+@Composable
+fun LockTrackingButton(operation: () -> Unit, padding: Int, isLocked: Boolean, modifier: Modifier){
+    IconButton(
+        onClick = operation,
+        modifier = Modifier
+            .border(
+                width = 2.dp,
+                color = MaterialTheme.colorScheme.onPrimary,
+                shape = CircleShape
+            )
+            .background(
+                color = MaterialTheme.colorScheme.background,
+                shape = CircleShape
+            )
+            .padding(padding.dp)
+    ) {
+        if(isLocked){
+        Icon(
+            imageVector = FeatherIcons.Unlock,
+            contentDescription = "Sledzenie lokalizacji",
+            tint = MaterialTheme.colorScheme.onPrimary
+        )} else {
+            Icon(
+                imageVector = FeatherIcons.Lock,
+                contentDescription = "Sledzenie lokalizacji",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )}
+        }
+    }
+
 
 @Composable
 fun FlashlightButton(padding: Int) {
@@ -163,6 +198,38 @@ fun CloseButton(operation: () -> Unit) {
             contentDescription = "Menu",
             tint = MaterialTheme.colorScheme.tertiary
         )
+    }
+}
+
+@Composable
+fun LocalizeMeButton(operation: () -> Unit, padding: Int){
+    IconButton(
+        onClick = operation,
+        modifier = Modifier
+            .border(
+                width = 2.dp,
+                color = MaterialTheme.colorScheme.onPrimary,
+                shape = CircleShape
+            )
+            .background(
+                color = MaterialTheme.colorScheme.background,
+                shape = CircleShape
+            )
+            .padding(padding.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.LocationOn,
+            contentDescription = "Pomoc i informacje",
+            tint = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+}
+val local: Boolean = true
+@Preview
+@Composable
+fun LockTrackingButtonPreview() {
+    QuestMapGPSTheme {
+        LockTrackingButton({ },5, isLocked = local, modifier = Modifier )
     }
 }
 

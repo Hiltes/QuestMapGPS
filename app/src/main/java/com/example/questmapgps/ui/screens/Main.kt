@@ -1,6 +1,8 @@
 package com.example.questmapgps.ui.screens
 
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -21,12 +23,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -36,12 +40,14 @@ import androidx.navigation.compose.rememberNavController
 import com.example.questmapgps.ui.components.AppButtonSmall
 import com.example.questmapgps.ui.components.FlashlightButton
 import com.example.questmapgps.ui.components.InfoButton
+import com.example.questmapgps.ui.components.LocalizeMeButton
 import com.example.questmapgps.ui.components.SettingsButton
 import com.example.questmapgps.ui.navigation.Routes
 import com.example.questmapgps.ui.screens.main_content.AboutAppPage
 import com.example.questmapgps.ui.screens.main_content.GamePage
 import com.example.questmapgps.ui.screens.main_content.SettingsPage
 import com.example.questmapgps.ui.theme.QuestMapGPSTheme
+import kotlin.time.Duration.Companion.seconds
 
 
 @Composable
@@ -61,7 +67,7 @@ fun Main_Scaffold(
                 )
             },
             bottomBar = {
-                BottomBar()
+
             }
         ) { innerPadding ->
             NavHost(
@@ -150,24 +156,71 @@ fun Topbar(
     }
 
 @Composable
-fun BottomBar() {
-    Row(modifier =
-        Modifier
+fun BottomBar(
+    camera: org.maplibre.compose.camera.CameraState,
+    modifier: Modifier,
+) {
+    val context = LocalContext.current
+    val locationHelper = remember { com.example.questmapgps.ui.sensors.LocationHelper(context) }
+
+    // 🔥 kliknięcie „Localize me” uruchamia coroutine
+    var triggerLocalization by remember { mutableStateOf(false) }
+
+    // 🛰️ Gdy trigger się zmieni na true → pobieramy lokalizację i przesuwamy kamerę
+    LaunchedEffect(triggerLocalization) {
+        if (triggerLocalization) {
+            try {
+                val newLocation = locationHelper.getCurrentLocation()
+                if (newLocation != null) {
+                    camera.animateTo(
+                        finalPosition = camera.position.copy(
+                            target = io.github.dellisd.spatialk.geojson.Position(
+                                newLocation.second, // long
+                                newLocation.first   // lat
+                            )
+                        ),
+                        duration = 3.seconds,
+                    )
+                } else {
+                    Toast.makeText(context, "Nie udało się pobrać lokalizacji", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Log.e("BottomBar", "Błąd pobierania lokalizacji", e)
+                Toast.makeText(context, "Błąd lokalizacji: ${e.message}", Toast.LENGTH_SHORT).show()
+            } finally {
+                triggerLocalization = false
+            }
+        }
+    }
+
+    // 🧭 UI przycisków
+    Row(
+        modifier = modifier
             .padding(horizontal = 12.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.End
-    ){
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.Bottom,
+    ) {
         Column(
             modifier = Modifier
                 .padding(vertical = 10.dp)
                 .fillMaxWidth(),
-            horizontalAlignment = Alignment.End
-            ) {
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.Bottom
+        ) {
             FlashlightButton(5)
-            InfoButton({},5)
+            InfoButton({}, 5)
+            LocalizeMeButton(
+                operation = { triggerLocalization = true },
+                padding = 5
+            )
         }
-
     }
 }
+
+
+
+
+
 
 
 
@@ -180,10 +233,3 @@ fun TopbarPreview(){
     }
 }
 
-@Preview
-@Composable
-fun BottomBarPreview() {
-    QuestMapGPSTheme {
-        BottomBar()
-    }
-}
