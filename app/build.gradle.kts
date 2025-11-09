@@ -42,11 +42,15 @@ android {
 }
 
 dependencies {
-
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
+    // Maplibre Compose z lokalizacją
     implementation(libs.maplibre.compose)
-    implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("org.maplibre.gl:android-sdk:12.0.1")
+
+    // GPS + lokalizacja Android
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
+
+    // UI i Compose
     implementation("br.com.devsrsouza.compose.icons:feather:1.1.1")
     implementation("androidx.navigation:navigation-compose:2.9.6")
     implementation("androidx.core:core-splashscreen:1.2.0")
@@ -62,6 +66,8 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui.unit)
     implementation(libs.androidx.compose.ui.text)
+
+    // testy
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -69,4 +75,10 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+// ✅ ZMIANA 2: Globalnie wykluczamy problematyczną bibliotekę jsr305
+// To rozwiązuje drugi konflikt zduplikowanych klas (np. @Nullable).
+configurations.implementation {
+    exclude(group = "com.google.code.findbugs", module = "jsr305")
 }

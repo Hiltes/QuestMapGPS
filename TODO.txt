@@ -3,9 +3,7 @@
 3. zrobić randa na punktach
 4. punkty za odwiedzenie miejsce / punkty za wpisanie kodu
 5. zrobić punkty
-6. zrobić button powrót do usera
-7. zrobić znacznik usera
-8. zrobić liderboards
-9. połączyć to z firebasem???
-10. zrobić telekomur do organizatora
-11. push notification
+7. zrobić liderboards
+8. połączyć to z firebasem???
+9. zrobić telekomur do organizatora
+10. push notification

@@ -37,6 +37,10 @@ import org.maplibre.compose.sources.rememberGeoJsonSource
 import org.maplibre.compose.util.ClickResult
 import java.io.File
 import kotlin.time.Duration.Companion.seconds
+import io.github.dellisd.spatialk.geojson.Feature
+import io.github.dellisd.spatialk.geojson.FeatureCollection
+import io.github.dellisd.spatialk.geojson.Point
+
 
 // Data class dla danych punktu
 data class PointData(
@@ -174,12 +178,12 @@ fun GamePage(onNavigateBack: () -> Unit) {
                         "https://api.maptiler.com/maps/basic-v2/style.json?key=3EzNiP9jPuozp4ZM6TiX"
                     )
                 ) {
+                    // Źródło twojej mapy GeoJSON
                     val myGeoJsonSource = rememberGeoJsonSource(
                         data = GeoJsonData.Uri(file!!.toUri().toString())
                     )
 
-
-
+                    // Czerwone punkty z map.geojson
                     CircleLayer(
                         id = "my-geojson-points",
                         source = myGeoJsonSource,
@@ -189,7 +193,6 @@ fun GamePage(onNavigateBack: () -> Unit) {
                             try {
                                 val feature = features.firstOrNull()
                                 if (feature != null) {
-
                                     val jsonObject = JSONObject(feature.json())
                                     val properties = jsonObject.getJSONObject("properties")
 
@@ -199,7 +202,6 @@ fun GamePage(onNavigateBack: () -> Unit) {
                                         hint = properties.getString("hint"),
                                         code = properties.getString("code")
                                     )
-
                                     selectedPoint = pointData
                                     Log.d("GamePage", "Kliknięto punkt: ${pointData.name}")
                                 }
@@ -210,9 +212,39 @@ fun GamePage(onNavigateBack: () -> Unit) {
                         }
                     )
 
+                    // 🔵 Dodajemy niebieski znacznik użytkownika
+                    // 🔵 Dodajemy niebieski znacznik użytkownika
+                    if (location != null) {
+                        val userFeatureCollection = FeatureCollection(
+                            features = listOf(
+                                Feature(
+                                    // ✅ Poprawka: opakowujemy współrzędne w obiekt Position
+                                    geometry = Point(
+                                        Position(
+                                            longitude = location!!.second,
+                                            latitude = location!!.first
+                                        )
+                                    ),
+                                    properties = emptyMap()
+                                )
+                            )
+                        )
 
+                        val userSource = rememberGeoJsonSource(
+                            data = GeoJsonData.Features(userFeatureCollection)
+                        )
+
+                        CircleLayer(
+                            id = "user-location-layer",
+                            source = userSource,
+                            color = const(Color.Blue),
+                            radius = const(7.dp)
+                        )
+                    }
                 }
             }
+
+
         }
 
 
