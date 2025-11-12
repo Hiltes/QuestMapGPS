@@ -68,7 +68,7 @@ fun QuestMapGPSTheme(
     val context = LocalContext.current
     val ambientLight = if (useAmbientSensor) rememberAmbientLightLevel() else 1000f
 
-    val isDarkBySensor = ambientLight < 50f
+    val isDarkBySensor = ambientLight < 30f
     val targetDarkTheme = if (useAmbientSensor) isDarkBySensor else isSystemInDarkTheme()
 
 

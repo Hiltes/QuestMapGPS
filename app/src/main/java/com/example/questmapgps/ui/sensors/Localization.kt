@@ -30,24 +30,81 @@ import androidx.compose.ui.unit.dp
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.tasks.await
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Looper
+import android.util.Log
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.*
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 class LocationHelper(context: Context) {
-
-    private val fusedClient: FusedLocationProviderClient =
+    private val fusedLocationProviderClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
+
+    private val applicationContext: Context = context.applicationContext
 
     @SuppressLint("MissingPermission")
     suspend fun getCurrentLocation(): Pair<Double, Double>? {
-        val location: Location? = fusedClient.lastLocation.await()
-        return location?.let {
-            it.latitude to it.longitude
+        // Sprawdzenie uprawnień jest kluczowe, nawet jeśli robisz to na wyższym poziomie
+        val hasPermission = ContextCompat.checkSelfPermission(
+            applicationContext, Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (!hasPermission) {
+            Log.w("LocationHelper", "Brak uprawnień do lokalizacji podczas próby jej pobrania.")
+            return null
+        }
+
+        // Ta korutyna aktywnie prosi o nową lokalizację i czeka na odpowiedź
+        return suspendCancellableCoroutine { continuation ->
+            val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
+                .setWaitForAccurateLocation(true) // Czekaj na dokładną lokalizację
+                .setMaxUpdates(1) // Chcemy tylko JEDNĄ aktualizację
+                .build()
+
+            val locationCallback = object : LocationCallback() {
+                override fun onLocationResult(locationResult: LocationResult) {
+                    val location = locationResult.lastLocation
+                    if (location != null && continuation.isActive) {
+                        Log.d("LocationHelper", "Sukces! Otrzymano nową lokalizację: ${location.latitude}, ${location.longitude}")
+                        continuation.resume(Pair(location.latitude, location.longitude))
+                    } else if (continuation.isActive) {
+                        Log.w("LocationHelper", "Otrzymano pusty wynik lokalizacji.")
+                        continuation.resume(null)
+                    }
+                    fusedLocationProviderClient.removeLocationUpdates(this)
+                }
+
+                override fun onLocationAvailability(availability: LocationAvailability) {
+                    if (!availability.isLocationAvailable && continuation.isActive) {
+                        Log.e("LocationHelper", "Lokalizacja jest niedostępna (np. w budynku, tunelu).")
+                        continuation.resume(null)
+                        fusedLocationProviderClient.removeLocationUpdates(this)
+                    }
+                }
+            }
+
+            // Rozpocznij nasłuchiwanie
+            fusedLocationProviderClient.requestLocationUpdates(
+                locationRequest,
+                locationCallback,
+                Looper.getMainLooper()
+            )
+
+            // Jeśli korutyna zostanie anulowana, przestań nasłuchiwać
+            continuation.invokeOnCancellation {
+                Log.d("LocationHelper", "Anulowano żądanie lokalizacji.")
+                fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+            }
         }
     }
 }
 
 @Composable
 fun PointInfoDialog(
-    pointData: com.example.questmapgps.ui.screens.main_content.PointData,
+    pointData: com.example.questmapgps.ui.sensors.PointData,
     onDismiss: () -> Unit
 ) {
     AlertDialog(

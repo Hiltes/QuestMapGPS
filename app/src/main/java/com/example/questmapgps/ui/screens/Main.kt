@@ -1,6 +1,8 @@
 package com.example.questmapgps.ui.screens
 
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -33,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -147,8 +150,8 @@ fun Topbar(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                AppButtonSmall("Strona Główna") { onNavigateGamePage() }
-                AppButtonSmall("O Aplikacji") { onNavigateAboutAppPage() }
+                AppButtonSmall("Strona Główna", { onNavigateGamePage() })
+                AppButtonSmall(buttonText = "O Aplikacji", operation = {onNavigateAboutAppPage()})
             }
         }
     }
@@ -157,43 +160,9 @@ fun Topbar(
 
 @Composable
 fun BottomBar(
-    camera: org.maplibre.compose.camera.CameraState,
     modifier: Modifier,
+    onLocalizeMeClick: () -> Unit // Przekazujemy tylko funkcję do wywołania
 ) {
-    val context = LocalContext.current
-    val locationHelper = remember { com.example.questmapgps.ui.sensors.LocationHelper(context) }
-
-    // 🔥 kliknięcie „Localize me” uruchamia coroutine
-    var triggerLocalization by remember { mutableStateOf(false) }
-
-    // 🛰️ Gdy trigger się zmieni na true → pobieramy lokalizację i przesuwamy kamerę
-    LaunchedEffect(triggerLocalization) {
-        if (triggerLocalization) {
-            try {
-                val newLocation = locationHelper.getCurrentLocation()
-                if (newLocation != null) {
-                    camera.animateTo(
-                        finalPosition = camera.position.copy(
-                            target = io.github.dellisd.spatialk.geojson.Position(
-                                newLocation.second, // long
-                                newLocation.first   // lat
-                            )
-                        ),
-                        duration = 3.seconds,
-                    )
-                } else {
-                    Toast.makeText(context, "Nie udało się pobrać lokalizacji", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Log.e("BottomBar", "Błąd pobierania lokalizacji", e)
-                Toast.makeText(context, "Błąd lokalizacji: ${e.message}", Toast.LENGTH_SHORT).show()
-            } finally {
-                triggerLocalization = false
-            }
-        }
-    }
-
-    // 🧭 UI przycisków
     Row(
         modifier = modifier
             .padding(horizontal = 12.dp, vertical = 4.dp),
@@ -209,8 +178,9 @@ fun BottomBar(
         ) {
             FlashlightButton(5)
             InfoButton({}, 5)
+            // Przycisk wywołuje funkcję otrzymaną od rodzica (GamePage)
             LocalizeMeButton(
-                operation = { triggerLocalization = true },
+                operation = onLocalizeMeClick,
                 padding = 5
             )
         }

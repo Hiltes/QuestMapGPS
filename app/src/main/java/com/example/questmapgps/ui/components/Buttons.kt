@@ -79,35 +79,35 @@ fun InfoButton(operation: () -> Unit, padding: Int){
         )
     }
 }
-@Composable
-fun LockTrackingButton(operation: () -> Unit, padding: Int, isLocked: Boolean, modifier: Modifier){
-    IconButton(
-        onClick = operation,
-        modifier = Modifier
-            .border(
-                width = 2.dp,
-                color = MaterialTheme.colorScheme.onPrimary,
-                shape = CircleShape
-            )
-            .background(
-                color = MaterialTheme.colorScheme.background,
-                shape = CircleShape
-            )
-            .padding(padding.dp)
-    ) {
-        if(isLocked){
-        Icon(
-            imageVector = FeatherIcons.Unlock,
-            contentDescription = "Sledzenie lokalizacji",
-            tint = MaterialTheme.colorScheme.onPrimary
-        )} else {
-            Icon(
-                imageVector = FeatherIcons.Lock,
-                contentDescription = "Sledzenie lokalizacji",
-                tint = MaterialTheme.colorScheme.onPrimary
-            )}
-        }
-    }
+//@Composable
+//fun LockTrackingButton(operation: () -> Unit, padding: Int, isLocked: Boolean, modifier: Modifier){
+//    IconButton(
+//        onClick = operation,
+//        modifier = Modifier
+//            .border(
+//                width = 2.dp,
+//                color = MaterialTheme.colorScheme.onPrimary,
+//                shape = CircleShape
+//            )
+//            .background(
+//                color = MaterialTheme.colorScheme.background,
+//                shape = CircleShape
+//            )
+//            .padding(padding.dp)
+//    ) {
+//        if(isLocked){
+//        Icon(
+//            imageVector = FeatherIcons.Unlock,
+//            contentDescription = "Sledzenie lokalizacji",
+//            tint = MaterialTheme.colorScheme.onPrimary
+//        )} else {
+//            Icon(
+//                imageVector = FeatherIcons.Lock,
+//                contentDescription = "Sledzenie lokalizacji",
+//                tint = MaterialTheme.colorScheme.onPrimary
+//            )}
+//        }
+//    }
 
 
 @Composable
@@ -132,7 +132,7 @@ fun FlashlightButton(padding: Int) {
         modifier = Modifier
             .padding(padding.dp)
             .clip(CircleShape)
-            .border(2.dp, MaterialTheme.colorScheme.onBackground, CircleShape)
+            .border(2.dp, MaterialTheme.colorScheme.onPrimary, CircleShape)
             .background(MaterialTheme.colorScheme.background)
     ) {
         Icon(
@@ -146,7 +146,7 @@ fun FlashlightButton(padding: Int) {
     }
 }
 @Composable
-fun AppButtonSmall(buttonText:String, operation: () -> Unit) {
+fun AppButtonSmall(buttonText:String, operation: () -> Unit, modifier: Modifier = Modifier) {
     Button(
         onClick = operation,
         modifier = Modifier
@@ -224,14 +224,14 @@ fun LocalizeMeButton(operation: () -> Unit, padding: Int){
         )
     }
 }
-val local: Boolean = true
-@Preview
-@Composable
-fun LockTrackingButtonPreview() {
-    QuestMapGPSTheme {
-        LockTrackingButton({ },5, isLocked = local, modifier = Modifier )
-    }
-}
+//val local: Boolean = true
+//@Preview
+//@Composable
+//fun LockTrackingButtonPreview() {
+//    QuestMapGPSTheme {
+//        LockTrackingButton({ },5, isLocked = local, modifier = Modifier )
+//    }
+//}
 
 
 @Preview
