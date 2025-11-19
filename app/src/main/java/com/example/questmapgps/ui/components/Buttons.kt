@@ -1,5 +1,6 @@
 package com.example.questmapgps.ui.components
 import android.content.Context
+import android.content.Intent
 import android.hardware.camera2.CameraManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,7 +15,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -28,18 +30,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.questmapgps.ui.theme.QuestMapGPSTheme
 import compose.icons.FeatherIcons
-import compose.icons.feathericons.Lock
-import compose.icons.feathericons.Unlock
 import compose.icons.feathericons.Zap
 import compose.icons.feathericons.ZapOff
-import io.github.dellisd.spatialk.geojson.Position
-import kotlin.time.Duration.Companion.seconds
+import androidx.core.net.toUri
 
 
 @Composable
@@ -57,9 +57,12 @@ fun AppButton(buttonText:String, operation: () -> Unit) {
 }
 
 @Composable
-fun InfoButton(operation: () -> Unit, padding: Int){
+fun InfoButton(padding: Int, phone: String) {
+    val context = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
+
     IconButton(
-        onClick = operation,
+        onClick = { showDialog = true },
         modifier = Modifier
             .border(
                 width = 2.dp,
@@ -78,7 +81,52 @@ fun InfoButton(operation: () -> Unit, padding: Int){
             tint = MaterialTheme.colorScheme.onPrimary
         )
     }
+
+    if (showDialog) {
+        InfoDialog(
+            phone = phone,
+            onDismiss = { showDialog = false }
+        )
+    }
 }
+@Composable
+fun InfoDialog(phone: String, onDismiss: () -> Unit) {
+    val context = LocalContext.current
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                "Informacje o grze",
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontSize = 20.sp,
+                textAlign = TextAlign.Center
+            )
+        },
+        text = {
+            Text(
+                "Jeśli masz jakiś problem podczas gry możesz zadzwonić do organizatora.",
+                modifier = Modifier.padding(vertical = 10.dp),
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+        },
+        confirmButton = {
+            AppButtonSmall("Zadzwoń", operation = {val intent = Intent(
+                Intent.ACTION_DIAL,
+                "tel:$phone".toUri()
+            )
+                context.startActivity(intent)
+                onDismiss()}, modifier = Modifier) {}
+        },
+        dismissButton = {
+
+            AppButtonSmall("Zamknij", onDismiss) {}
+        }
+    )
+}
+
+
+
 //@Composable
 //fun LockTrackingButton(operation: () -> Unit, padding: Int, isLocked: Boolean, modifier: Modifier){
 //    IconButton(
@@ -146,7 +194,12 @@ fun FlashlightButton(padding: Int) {
     }
 }
 @Composable
-fun AppButtonSmall(buttonText:String, operation: () -> Unit, modifier: Modifier = Modifier) {
+fun AppButtonSmall(
+    buttonText: String,
+    operation: () -> Unit,
+    modifier: Modifier = Modifier,
+    function: () -> Unit
+) {
     Button(
         onClick = operation,
         modifier = Modifier
@@ -172,7 +225,7 @@ fun AppButtonSmall(buttonText:String, operation: () -> Unit, modifier: Modifier 
 fun SettingsButton(operation: () -> Unit) {
     IconButton(onClick = operation) {
         Icon(
-            imageVector = Icons.Default.Settings,
+            imageVector = Icons.Default.Star,
             contentDescription = "Lubię to",
             tint = MaterialTheme.colorScheme.onPrimary
         )
@@ -238,7 +291,7 @@ fun LocalizeMeButton(operation: () -> Unit, padding: Int){
 @Composable
 fun AppButtonPreview() {
     QuestMapGPSTheme {
-        AppButton("Enter",{})
+        AppButton("Enter") {}
     }
 }
 
@@ -270,7 +323,7 @@ fun CloseButtonPreview() {
 @Composable
 fun AppButtonSmallPreview() {
     QuestMapGPSTheme {
-        AppButtonSmall("EnterSmall",{})
+        AppButtonSmall("EnterSmall", {}) {}
     }
 }
 
@@ -278,7 +331,8 @@ fun AppButtonSmallPreview() {
 @Composable
 fun InfoButtonPreview() {
     QuestMapGPSTheme {
-        InfoButton({},10)
+        InfoButton(padding = 10, phone = "123456789")
+
     }
 }
 

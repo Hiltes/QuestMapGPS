@@ -1,49 +1,68 @@
 package com.example.questmapgps.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.questmapgps.ui.screens.Main_Scaffold
 import com.example.questmapgps.ui.screens.FormPage
 import com.example.questmapgps.ui.screens.WelcomePage
+import com.example.questmapgps.ui.screens.main_content.GameViewModel
 
 @Composable
-fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
+fun NavGraph(
+    navController: NavHostController,
+    modifier: Modifier = Modifier,
+    pointIdToShow: Int?,
+    onPointShown: () -> Unit,
+    routeToNavigateTo: String?,
+    onNavigationHandled: () -> Unit
+) {
+    // Obsługa zewnętrznych poleceń nawigacji
+    LaunchedEffect(routeToNavigateTo) {
+        if (routeToNavigateTo != null) {
+            navController.navigate(routeToNavigateTo)
+            onNavigationHandled()
+        }
+    }
+
+    val gameViewModel: GameViewModel = viewModel()
+
     NavHost(
         navController = navController,
         startDestination = Routes.WELCOME,
         modifier = modifier
     ) {
-        //  Ekran powitalny
+
+        // EKRAN POWITALNY
         composable(Routes.WELCOME) {
             WelcomePage(
                 onNavigateToFormPage = { navController.navigate(Routes.FORM) }
             )
         }
 
-        //  Formularz
+        // FORMULARZ
         composable(Routes.FORM) {
             FormPage(
                 onStart = { name ->
-                    navController.navigate(Routes.GAME) {
-                        popUpTo(Routes.WELCOME) { inclusive = true } // usuwa poprzednie ekrany ze stosu
+                    gameViewModel.saveUsername(name)
+                    navController.navigate(Routes.MAIN.GAME) {
+                        popUpTo(Routes.WELCOME) { inclusive = true }
                     }
                 },
                 onExit = { navController.popBackStack() }
             )
         }
 
-        // Wszystkie pozostałe strony (game, settings, about)
-        composable(Routes.GAME) {
-            Main_Scaffold(startDestination = Routes.GAME, parentNav = navController)
-        }
-        composable(Routes.SETTINGS) {
-            Main_Scaffold(startDestination = Routes.SETTINGS, parentNav = navController)
-        }
-        composable(Routes.ABOUT) {
-            Main_Scaffold(startDestination = Routes.ABOUT, parentNav = navController)
+
+        composable(Routes.MAIN.GAME) {
+            Main_Scaffold(
+                parentNav = navController,
+                gameViewModel = gameViewModel
+            )
         }
     }
 }

@@ -1,9 +1,5 @@
-1. Trzeba poprawić znaczniki
-2. poprawić wyświetlanie proporities znaczników
-3. zrobić randa na punktach
-4. punkty za odwiedzenie miejsce / punkty za wpisanie kodu
-5. zrobić punkty
-7. zrobić liderboards
-8. połączyć to z firebasem???
-9. zrobić telekomur do organizatora
-10. push notification
+1. punkty za odwiedzenie miejsce!!!!?? / punkty za wpisanie kodu :>>
+2. ranking poprawić
+3. wyświetlanie punktu info poprawić
+4. tryb jasny poprawić
+5. push notification zrobić

@@ -24,6 +24,7 @@ fun FormPage(
 ) {
     var playerName by remember { mutableStateOf("") }
 
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,

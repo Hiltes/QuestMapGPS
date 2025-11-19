@@ -1,1 +1,141 @@
-{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Uniwersytet","description":"Uniwerek fajne miejsce całe te","hint":"szukaj napisu przy struzowce w A1","code":"orzel"},"geometry":{"coordinates":[22.014355034022998,50.02908881537118],"type":"Point"},"id":0}]}
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Uniwersytet",
+        "description": "Kampus Rejtana Uniwersytetu Rzeszowskiego to główny kompleks uczelni, położony przy al. Tadeusza Rejtana 16c w centrum Rzeszowa.",
+        "hint": "Wiosną i latem w tym miejscu jest kolorowo od różnych roślin, co to za miejsce?",
+        "code": "łąka kwiatowa"
+      },
+      "geometry": {
+        "coordinates": [
+          22.014277969431276,
+          50.02901455163558
+        ],
+        "type": "Point"
+      },
+      "id": 0
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Najwyższy budynek mieszkalny w Polsce",
+        "description": "Najwyższym budynkiem mieszkalnym w Polsce jest Olszynki Park w Rzeszowie — jego wieża ma 220,67 m wysokości i 41 pięter.",
+        "hint": "Jak się nazywa deweloper który go zbudował? (nazwa widoczna na budynku)",
+        "code": "apklan"
+      },
+      "geometry": {
+        "coordinates": [
+          22.003046286484704,
+          50.03109971452699
+        ],
+        "type": "Point"
+      },
+      "id": 1
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Zamek Lubomirskich",
+        "description": "Zamek Lubomirskich w Rzeszowie to historyczny obiekt znajdujący się przy Placu Śreniawitów. Jego korzenie sięgają końca XVI wieku, kiedy to Mikołaj Spytek Ligęza wzniósł tutaj swoją rezydencję obronną.",
+        "hint": "numer adresowy obiektu który znajduje się na tabliczce po lewej stronie od wejścia głównego",
+        "code": "3"
+      },
+      "geometry": {
+        "coordinates": [
+          21.999451222680023,
+          50.03245490896114
+        ],
+        "type": "Point"
+      },
+      "id": 2
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Pomnik generała",
+        "description": "Pomnik generała Władysława Sikorskiego w Rzeszowie znajduje się w Parku Jedności Polonii z Macierzą przy al. Łukasza Cieplińskiego.",
+        "hint": "Rok urodzenia generała",
+        "code": "1881"
+      },
+      "geometry": {
+        "coordinates": [
+          21.996468814879506,
+          50.038391035642064
+        ],
+        "type": "Point"
+      },
+      "id": 3
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Tablica naścienna",
+        "description": "Tablica upamiętniająca zburzenie pomnika Tadeusza Kościuszki przez Niemców.",
+        "hint": "W którym roku pomnik został zburzony",
+        "code": "1940"
+      },
+      "geometry": {
+        "coordinates": [
+          22.004649905206804,
+          50.037201518567116
+        ],
+        "type": "Point"
+      },
+      "id": 4
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Fontanna Multimedialna",
+        "description": "Fontanna Multimedialna w Rzeszowie to jedna z najbardziej efektownych atrakcji miasta. Znajduje się przy al. Lubomirskich.",
+        "hint": "Przy jakiej alei znajduje się fontanna? (sławny ród którego siedziba jest w Rzeszowie)",
+        "code": "lubomirskich"
+      },
+      "geometry": {
+        "coordinates": [
+          22.002087231749755,
+          50.033601729195055
+        ],
+        "type": "Point"
+      },
+      "id": 5
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Most Narutowicza",
+        "description": "Most Narutowicza w Rzeszowie to nowoczesny obiekt komunikacyjny nad Wisłokiem, który został otwarty 2 grudnia 2013 roku.",
+        "hint": "Jak słownie możemy określić jego nietypowe malowanie? Jaki jest most?",
+        "code": "tęczowy"
+      },
+      "geometry": {
+        "coordinates": [
+          22.013072317571527,
+          50.03443696424674
+        ],
+        "type": "Point"
+      },
+      "id": 6
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rzeszowskie piwnice",
+        "description": "Rzeszowskie Piwnice (ang. Rzeszów Cellars) to podziemna trasa turystyczna pod rynkiem Starego Miasta w Rzeszowie, łącząca historię miasta z nowoczesną technologią.",
+        "hint": "numer adresowy obieku znajdujący się na ścianie przed jego wejściem.",
+        "code": "26"
+      },
+      "geometry": {
+        "coordinates": [
+          22.0038834284843,
+          50.03766492185494
+        ],
+        "type": "Point"
+      },
+      "id": 7
+    }
+  ]
+}

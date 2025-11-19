@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "278502313614",
+    "project_id": "questmap-d58ca",
+    "storage_bucket": "questmap-d58ca.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:278502313614:android:4ff17e526751cc740383df",
+        "android_client_info": {
+          "package_name": "com.example.questmapgps"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8XSaBY_1iQ3glJfeabjgaODI265fFjeA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

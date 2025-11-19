@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -42,9 +43,22 @@ android {
 }
 
 dependencies {
+
+
+    // Import the BoM for the Firebase platform
+    implementation(platform("com.google.firebase:firebase-bom:34.6.0")) // Sprawdź najnowszą wersję BoM
+
+    // Add the dependency for the Realtime Database library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation("com.google.firebase:firebase-database")
+    // Add the dependencies for any other desired Firebase products
+    // https://firebase.google.com/docs/android/setup#available-libraries
+    implementation("org.maplibre.spatialk:geojson:0.6.1")
+
+    implementation("com.google.firebase:firebase-auth")
     // Maplibre Compose z lokalizacją
     implementation(libs.maplibre.compose)
-    implementation("org.maplibre.gl:android-sdk:12.0.1")
+    implementation("org.maplibre.gl:android-sdk:12.1.2")
 
     // GPS + lokalizacja Android
     implementation("com.google.android.gms:play-services-location:21.3.0")
@@ -66,6 +80,8 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui.unit)
     implementation(libs.androidx.compose.ui.text)
+    implementation(libs.androidx.compose.foundation.layout.android)
+    implementation(libs.androidx.compose.foundation.layout.android)
 
     // testy
     testImplementation(libs.junit)

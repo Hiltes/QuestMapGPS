@@ -1,41 +1,17 @@
 package com.example.questmapgps.ui.screens
 
-
-import android.Manifest
-import android.content.pm.PackageManager
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -48,15 +24,14 @@ import com.example.questmapgps.ui.components.SettingsButton
 import com.example.questmapgps.ui.navigation.Routes
 import com.example.questmapgps.ui.screens.main_content.AboutAppPage
 import com.example.questmapgps.ui.screens.main_content.GamePage
+import com.example.questmapgps.ui.screens.main_content.GameViewModel
 import com.example.questmapgps.ui.screens.main_content.SettingsPage
 import com.example.questmapgps.ui.theme.QuestMapGPSTheme
-import kotlin.time.Duration.Companion.seconds
-
 
 @Composable
 fun Main_Scaffold(
-    startDestination: String = Routes.GAME,
-    parentNav: NavHostController
+    parentNav: NavHostController,
+    gameViewModel: GameViewModel
 ) {
     val innerNavController = rememberNavController()
 
@@ -64,31 +39,33 @@ fun Main_Scaffold(
         Scaffold(
             topBar = {
                 Topbar(
-                    onNavigateGamePage = { innerNavController.navigate(Routes.GAME) },
-                    onNavigateToSettingsPage = { innerNavController.navigate(Routes.SETTINGS) },
-                    onNavigateAboutAppPage = { innerNavController.navigate(Routes.ABOUT) },
+                    onNavigateGamePage = { innerNavController.navigate(Routes.MAIN.GAME) },
+                    onNavigateToSettingsPage = { innerNavController.navigate(Routes.MAIN.SETTINGS) },
+                    onNavigateAboutAppPage = { innerNavController.navigate(Routes.MAIN.ABOUT) }
                 )
-            },
-            bottomBar = {
-
             }
         ) { innerPadding ->
+
             NavHost(
                 navController = innerNavController,
-                startDestination = startDestination,
+                startDestination = Routes.MAIN.GAME,
                 modifier = Modifier.padding(innerPadding)
             ) {
-                composable(Routes.GAME) {
+
+                composable(Routes.MAIN.GAME) {
                     GamePage(
-                        onNavigateBack = { parentNav.navigate(Routes.WELCOME) }
+                        gameViewModel = gameViewModel,
+                        onNavigateBack = { parentNav.popBackStack() }
                     )
                 }
-                composable(Routes.SETTINGS) {
+
+                composable(Routes.MAIN.SETTINGS) {
                     SettingsPage(
                         onNavigateBack = { innerNavController.popBackStack() }
                     )
                 }
-                composable(Routes.ABOUT) {
+
+                composable(Routes.MAIN.ABOUT) {
                     AboutAppPage(
                         onNavigateBack = { innerNavController.popBackStack() }
                     )
@@ -98,16 +75,14 @@ fun Main_Scaffold(
     }
 }
 
-
 @Composable
 fun Topbar(
     onNavigateGamePage: () -> Unit,
     onNavigateToSettingsPage: () -> Unit,
     onNavigateAboutAppPage: () -> Unit
-
 ) {
     var expanded by remember { mutableStateOf(false) }
-    QuestMapGPSTheme {
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -130,7 +105,7 @@ fun Topbar(
             }
 
             Text(
-                text = "Nazwa Gry",
+                text = "Alpha Version",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onPrimary
             )
@@ -150,22 +125,20 @@ fun Topbar(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                AppButtonSmall("Strona Główna", { onNavigateGamePage() })
-                AppButtonSmall(buttonText = "O Aplikacji", operation = {onNavigateAboutAppPage()})
+                AppButtonSmall("Strona Główna", onNavigateGamePage) {}
+                AppButtonSmall("Informacje", onNavigateAboutAppPage) {}
             }
         }
     }
 }
-    }
 
 @Composable
 fun BottomBar(
     modifier: Modifier,
-    onLocalizeMeClick: () -> Unit // Przekazujemy tylko funkcję do wywołania
+    onLocalizeMeClick: () -> Unit,
 ) {
     Row(
-        modifier = modifier
-            .padding(horizontal = 12.dp, vertical = 4.dp),
+        modifier = modifier.padding(horizontal = 12.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.Bottom,
     ) {
@@ -177,29 +150,14 @@ fun BottomBar(
             verticalArrangement = Arrangement.Bottom
         ) {
             FlashlightButton(5)
-            InfoButton({}, 5)
-            // Przycisk wywołuje funkcję otrzymaną od rodzica (GamePage)
+
             LocalizeMeButton(
                 operation = onLocalizeMeClick,
                 padding = 5
             )
+
+            InfoButton(padding = 10, phone = "123456789")
+
         }
     }
 }
-
-
-
-
-
-
-
-
-
-@Preview
-@Composable
-fun TopbarPreview(){
-    QuestMapGPSTheme {
-        Topbar({},{},{})
-    }
-}
-
