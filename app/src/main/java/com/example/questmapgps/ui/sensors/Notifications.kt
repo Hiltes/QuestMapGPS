@@ -20,7 +20,6 @@ class NotificationHelper(private val context: Context) {
     companion object {
         const val ACTION_SHOW_POINT = "com.example.questmapgps.ACTION_SHOW_POINT"
         const val EXTRA_POINT_ID = "com.example.questmapgps.EXTRA_POINT_ID"
-        // NOWA AKCJA
         const val ACTION_NAVIGATE_TO_ABOUT = "com.example.questmapgps.ACTION_NAVIGATE_TO_ABOUT"
     }
 
@@ -77,7 +76,7 @@ class NotificationHelper(private val context: Context) {
         }
     }
 
-    // ZMIENIONA FUNKCJA DEBUGUJĄCA
+    // DEBUG
     fun showDebugWelcomeNotification() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ActivityCompat.checkSelfPermission(
                 context, Manifest.permission.POST_NOTIFICATIONS
@@ -93,7 +92,7 @@ class NotificationHelper(private val context: Context) {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
 
-        // Unikalny requestCode dla tej akcji
+
         val pendingIntent: PendingIntent = PendingIntent.getActivity(
             context, 9998, intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
@@ -102,13 +101,15 @@ class NotificationHelper(private val context: Context) {
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle("QuestMapGPS")
-            .setContentText("Witamy! Kliknij, aby zobaczyć informacje o apce.") // Zmieniony tekst
+            .setContentText("Witamy! Kliknij, aby zobaczyć informacje o apce.")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
-            .setContentIntent(pendingIntent) // NOWE: Przypisanie akcji po kliknięciu
+            .setContentIntent(pendingIntent)
 
         with(NotificationManagerCompat.from(context)) {
             notify(9999, builder.build())
         }
     }
+
+
 }

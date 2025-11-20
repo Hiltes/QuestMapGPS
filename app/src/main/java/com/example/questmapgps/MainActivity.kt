@@ -14,11 +14,17 @@ import com.example.questmapgps.ui.navigation.NavGraph
 import com.example.questmapgps.ui.navigation.Routes // NOWY IMPORT
 import com.example.questmapgps.ui.screens.main_content.NotificationHelper
 import com.example.questmapgps.ui.theme.QuestMapGPSTheme
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
+import android.util.Log
+
+
 
 class MainActivity : ComponentActivity() {
 
     private var pointIdToShow by mutableStateOf<Int?>(null)
-    // NOWE: Stan do przechowywania trasy, do której mamy nawigować
     private var routeToNavigateTo by mutableStateOf<String?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,12 +32,28 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+       val requestNotificationPermission =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+                if (granted) {
+                    // Po uzyskaniu zgody możesz odpalić debug notification
+                    NotificationHelper(this).showDebugWelcomeNotification()
+                } else {
+                    Log.w("MainActivity", "User denied POST_NOTIFICATIONS permission")
+                }
+            }
         handleIntent(intent)
-
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
         setContent {
             QuestMapGPSTheme {
                 val navController = rememberNavController()
-                // ZMIENIONE: Przekazujemy oba stany do NavGraph
                 NavGraph(
                     navController = navController,
                     pointIdToShow = pointIdToShow,

@@ -56,6 +56,7 @@ import com.example.questmapgps.ui.screens.BottomBar
 import com.example.questmapgps.ui.sensors.LocationHelper
 import com.example.questmapgps.ui.sensors.PointData
 import com.example.questmapgps.ui.sensors.PointInfoDialog
+import com.example.questmapgps.ui.theme.QuestMapGPSTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -70,6 +71,8 @@ import org.maplibre.compose.layers.CircleLayer
 import org.maplibre.compose.layers.SymbolLayer
 import org.maplibre.compose.map.MaplibreMap
 import org.maplibre.compose.sources.GeoJsonData
+import org.maplibre.compose.sources.GeoJsonOptions
+import org.maplibre.compose.sources.SourceDefaults
 import org.maplibre.compose.sources.rememberGeoJsonSource
 import org.maplibre.compose.style.BaseStyle
 import org.maplibre.compose.util.ClickResult
@@ -125,6 +128,7 @@ fun GamePage(
         var selectedPoint by remember { mutableStateOf<PointData?>(null) }
 
         var selectedFeature by remember {mutableStateOf<Feature<Geometry, JsonObject?>?>(null)}
+        var clustering by remember{mutableStateOf(false)}
 
 
         val camera = rememberCameraState(
@@ -287,24 +291,65 @@ fun GamePage(
                     baseStyle = BaseStyle.Uri("https://api.maptiler.com/maps/basic-v2/style.json?key=3EzNiP9jPuozp4ZM6TiX")
 
                 ) {
+                    if(clustering==false) {
 
-                    val myGeoJsonSource = rememberGeoJsonSource(data = GeoJsonData.Uri(file!!.toUri().toString()))
+                        val myGeoJsonSource = rememberGeoJsonSource(
+                            data = GeoJsonData.Uri(file!!.toUri().toString()),
+                            // Clusterowanie ikonek
+                            //options = GeoJsonOptions(cluster=false, clusterMaxZoom = SourceDefaults.MAX_ZOOM - 1)
+                        )
 
-                    // pobieranie punktów z których user wpisał poprawnie kod
+                        // pobieranie punktów z których user wpisał poprawnie kod
 //                    val userData by gameViewModel.userData.collectAsState()
 //                    val solvedcodePoints = userData?.codesSolvedPoints ?: emptyList()
 
 
-                    SymbolLayer(
-                        id = "my-geojson-points",
-                        source = myGeoJsonSource,
-                        iconImage = image(point),
+                        SymbolLayer(
+                            id = "my-geojson-points",
+                            source = myGeoJsonSource,
+                            iconImage = image(point),
+                            iconSize = const(1.75f),
+                            minZoom = 0.0f,
+                            maxZoom = 22.0f,
 
-                        onClick = { features ->
-                    selectedFeature = features.firstOrNull()
-                    ClickResult.Consume
+                            // Clusterowanie ikonek
+//                        minZoom = 0.0f,
+//                        maxZoom = 22.0f,
+//                        iconAllowOverlap = const(true),
+//                        iconIgnorePlacement = const(true),
+                            onClick = { features ->
+                                selectedFeature = features.firstOrNull()
+                                ClickResult.Consume
                             }
-                    )
+                        )
+                    }else{
+                        val myGeoJsonSource = rememberGeoJsonSource(
+                            data = GeoJsonData.Uri(file!!.toUri().toString()),
+                            // Clusterowanie ikonek
+                            options = GeoJsonOptions(cluster=false, clusterMaxZoom = SourceDefaults.MAX_ZOOM - 1)
+                        )
+
+                        // pobieranie punktów z których user wpisał poprawnie kod
+//                    val userData by gameViewModel.userData.collectAsState()
+//                    val solvedcodePoints = userData?.codesSolvedPoints ?: emptyList()
+
+
+                        SymbolLayer(
+                            id = "my-geojson-points",
+                            source = myGeoJsonSource,
+                            iconImage = image(point),
+                            iconSize = const(1.75f),
+                            // Clusterowanie ikonek
+                        minZoom = 0.0f,
+                        maxZoom = 22.0f,
+                        iconAllowOverlap = const(true),
+                        iconIgnorePlacement = const(true),
+                            onClick = { features ->
+                                selectedFeature = features.firstOrNull()
+                                ClickResult.Consume
+                            }
+                        )
+                    }
                     selectedFeature?.let { feature ->
                         val pos = (feature.geometry as Point).coordinates
                         val point = PointData(
@@ -315,13 +360,15 @@ fun GamePage(
                             latitude =  pos.latitude,
                             longitude = pos.longitude
                         )
-                        PointInfoDialog(
-                            pointData = point,
-                            onDismiss = { selectedFeature = null },
-                            onCodeCorrect = {
-                                gameViewModel.markCodeAsSolved(pointName = point.name )
-                            }
-                        )
+
+                            PointInfoDialog(
+                                pointData = point,
+                                onDismiss = { selectedFeature = null },
+                                onCodeCorrect = {
+                                    gameViewModel.markCodeAsSolved(pointName = point.name)
+                                }
+                            )
+
                     }
 
                     location?.let { loc ->
@@ -381,6 +428,9 @@ fun GamePage(
                         }
                     }
                 }
+            },
+            clustering= {
+                clustering = !clustering
             }
         )
     }

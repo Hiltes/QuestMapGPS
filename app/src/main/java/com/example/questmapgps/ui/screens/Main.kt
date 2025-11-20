@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.questmapgps.ui.components.AppButtonSmall
+import com.example.questmapgps.ui.components.ClusteringButton
 import com.example.questmapgps.ui.components.FlashlightButton
 import com.example.questmapgps.ui.components.InfoButton
 import com.example.questmapgps.ui.components.LocalizeMeButton
@@ -134,30 +135,27 @@ fun Topbar(
 
 @Composable
 fun BottomBar(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     onLocalizeMeClick: () -> Unit,
+    clustering: () -> Unit,
 ) {
-    Row(
-        modifier = modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.Bottom,
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(15.dp),
+        contentAlignment = Alignment.BottomEnd
     ) {
+
         Column(
-            modifier = Modifier
-                .padding(vertical = 10.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.Bottom
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalAlignment = Alignment.End
         ) {
-            FlashlightButton(5)
-
-            LocalizeMeButton(
-                operation = onLocalizeMeClick,
-                padding = 5
-            )
-
-            InfoButton(padding = 10, phone = "123456789")
-
+            ClusteringButton(clustering)
+            FlashlightButton()
+            LocalizeMeButton(onLocalizeMeClick)
+            InfoButton(phone = "123456789")
         }
     }
+
 }
+

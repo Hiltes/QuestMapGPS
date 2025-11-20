@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
@@ -57,38 +59,29 @@ fun AppButton(buttonText:String, operation: () -> Unit) {
 }
 
 @Composable
-fun InfoButton(padding: Int, phone: String) {
-    val context = LocalContext.current
+fun InfoButton(phone: String) {
     var showDialog by remember { mutableStateOf(false) }
 
     IconButton(
         onClick = { showDialog = true },
         modifier = Modifier
-            .border(
-                width = 2.dp,
-                color = MaterialTheme.colorScheme.onPrimary,
-                shape = CircleShape
-            )
-            .background(
-                color = MaterialTheme.colorScheme.background,
-                shape = CircleShape
-            )
-            .padding(padding.dp)
+            .size(64.dp) // stały rozmiar
+            .clip(CircleShape)
+            .border(2.dp, MaterialTheme.colorScheme.onPrimary, CircleShape)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Icon(
             imageVector = Icons.Default.Info,
-            contentDescription = "Pomoc i informacje",
+            contentDescription = "Informacje",
             tint = MaterialTheme.colorScheme.onPrimary
         )
     }
 
     if (showDialog) {
-        InfoDialog(
-            phone = phone,
-            onDismiss = { showDialog = false }
-        )
+        InfoDialog(phone = phone, onDismiss = { showDialog = false })
     }
 }
+
 @Composable
 fun InfoDialog(phone: String, onDismiss: () -> Unit) {
     val context = LocalContext.current
@@ -159,12 +152,10 @@ fun InfoDialog(phone: String, onDismiss: () -> Unit) {
 
 
 @Composable
-fun FlashlightButton(padding: Int) {
+fun FlashlightButton() {
     val context = LocalContext.current
     val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-    val cameraId = remember {
-        cameraManager.cameraIdList.firstOrNull() ?: ""
-    }
+    val cameraId = remember { cameraManager.cameraIdList.firstOrNull() ?: "" }
 
     var isTorchOn by remember { mutableStateOf(false) }
 
@@ -173,26 +164,26 @@ fun FlashlightButton(padding: Int) {
             try {
                 cameraManager.setTorchMode(cameraId, !isTorchOn)
                 isTorchOn = !isTorchOn
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            } catch (_: Exception) {}
         },
         modifier = Modifier
-            .padding(padding.dp)
+            .size(48.dp)  // STAŁY ROZMIAR PRZYCISKU
             .clip(CircleShape)
             .border(2.dp, MaterialTheme.colorScheme.onPrimary, CircleShape)
             .background(MaterialTheme.colorScheme.background)
     ) {
         Icon(
             imageVector = if (isTorchOn) FeatherIcons.Zap else FeatherIcons.ZapOff,
-            contentDescription = if (isTorchOn) "Wyłącz latarkę" else "Włącz latarkę",
-            tint = if (isTorchOn)
-                MaterialTheme.colorScheme.onPrimary
-            else
-                MaterialTheme.colorScheme.onPrimary
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onPrimary
         )
     }
 }
+
+
+
+
+
 @Composable
 fun AppButtonSmall(
     buttonText: String,
@@ -255,28 +246,41 @@ fun CloseButton(operation: () -> Unit) {
 }
 
 @Composable
-fun LocalizeMeButton(operation: () -> Unit, padding: Int){
+fun LocalizeMeButton(operation: () -> Unit) {
     IconButton(
         onClick = operation,
         modifier = Modifier
-            .border(
-                width = 2.dp,
-                color = MaterialTheme.colorScheme.onPrimary,
-                shape = CircleShape
-            )
-            .background(
-                color = MaterialTheme.colorScheme.background,
-                shape = CircleShape
-            )
-            .padding(padding.dp)
+            .size(48.dp)  // stały wymiar
+            .clip(CircleShape)
+            .border(2.dp, MaterialTheme.colorScheme.onPrimary, CircleShape)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Icon(
             imageVector = Icons.Default.LocationOn,
-            contentDescription = "Pomoc i informacje",
+            contentDescription = "Lokalizuj mnie",
             tint = MaterialTheme.colorScheme.onPrimary
         )
     }
 }
+
+@Composable
+fun ClusteringButton(operation: () -> Unit) {
+    IconButton(
+        onClick = operation,
+        modifier = Modifier
+            .size(48.dp)  // stały wymiar
+            .clip(CircleShape)
+            .border(2.dp, MaterialTheme.colorScheme.onPrimary, CircleShape)
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        Icon(
+            imageVector = Icons.Default.Build,
+            contentDescription = "Włącz/wyłącz Clustering",
+            tint = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+}
+
 //val local: Boolean = true
 //@Preview
 //@Composable
@@ -331,7 +335,7 @@ fun AppButtonSmallPreview() {
 @Composable
 fun InfoButtonPreview() {
     QuestMapGPSTheme {
-        InfoButton(padding = 10, phone = "123456789")
+        InfoButton(phone = "123456789")
 
     }
 }
@@ -342,6 +346,6 @@ fun InfoButtonPreview() {
 @Composable
 fun FlashlightButtonPreview() {
     QuestMapGPSTheme {
-        FlashlightButton(10)
+        FlashlightButton()
     }
 }

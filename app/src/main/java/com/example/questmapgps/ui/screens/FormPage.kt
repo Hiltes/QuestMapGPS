@@ -42,7 +42,7 @@ fun FormPage(
                 .padding(top = 4.dp, bottom = 16.dp),
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onPrimary
         )
 
         Card(

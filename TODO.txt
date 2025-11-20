@@ -1,5 +1,1 @@
-1. punkty za odwiedzenie miejsce!!!!?? / punkty za wpisanie kodu :>>
-2. ranking poprawić
-3. wyświetlanie punktu info poprawić
-4. tryb jasny poprawić
-5. push notification zrobić
+DONE

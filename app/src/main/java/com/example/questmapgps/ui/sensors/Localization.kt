@@ -11,8 +11,10 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -24,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -31,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,11 +42,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
+import com.example.questmapgps.ui.theme.Black
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -126,97 +135,148 @@ fun validateCode(userInput: String, correctCode: String): Boolean {
 fun PointInfoDialog(
     pointData: PointData,
     onDismiss: () -> Unit,
-    onCodeCorrect: (PointData) -> Unit // NOWY PARAMETR - callback po poprawnym kodzie
+    onCodeCorrect: (PointData) -> Unit
 ) {
     var userInputCode by remember { mutableStateOf("") }
     val context = LocalContext.current
 
     AlertDialog(
+        containerColor = MaterialTheme.colorScheme.secondary,
         onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Anuluj") // Zmieniony tekst, bo "Zamknij" jest teraz mniej logiczne
-            }
-        },
         title = {
             Text(
                 text = pointData.name,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+                color = MaterialTheme.colorScheme.onPrimary,
+                style = MaterialTheme.typography.labelSmall,
+                fontSize = 20.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
         },
         text = {
-            // Dodajemy scrollowanie, gdyby zawartość się nie mieściła
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()), // Umożliwia przewijanie
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .padding(horizontal = 6.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                // Opis
-                Column {
-                    Text(text = "Opis:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                    Text(text = pointData.description, style = MaterialTheme.typography.bodyMedium)
-                    Text(text= pointData.latitude.toString())
-                    Text(text= pointData.longitude.toString())
+
+                // OPIS
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        "Opis",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        pointData.description,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
                 }
 
-                HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
+                HorizontalDivider()
 
-                // Wskazówka
+                // WSKAZÓWKA
                 Column {
-                    Text(text = "Wskazówka:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                    Text(text = pointData.hint, style = MaterialTheme.typography.bodyMedium, fontStyle = FontStyle.Italic)
+                    Text(
+                        "Wskazówka",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        pointData.hint,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontStyle = FontStyle.Italic,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
                 }
 
-                HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
+                HorizontalDivider()
 
-                // ZMIENIONA SEKCJA "KOD"
+                // KOD — NOWY, ŁADNY BOX
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                            shape = RoundedCornerShape(8.dp)
+                            MaterialTheme.colorScheme.secondary,
+                            RoundedCornerShape(12.dp)
                         )
-                        .padding(12.dp),
+                        .padding(14.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(imageVector = Icons.Default.Lock, contentDescription = "Kod", tint = MaterialTheme.colorScheme.onSecondaryContainer)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Wpisz kod:", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                        Icon(
+                            imageVector = Icons.Default.Lock,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            "Wpisz kod",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
-                    Spacer(Modifier.height(8.dp))
 
-                    // Pole do wpisywania kodu
+                    Spacer(Modifier.height(10.dp))
+
                     OutlinedTextField(
                         value = userInputCode,
                         onValueChange = { userInputCode = it },
                         label = { Text("Kod") },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = MaterialTheme.typography.bodySmall,
                     )
 
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(14.dp))
 
-                    // Przycisk do sprawdzania
+                    // PRZYCISK SPRAWDZANIA
                     Button(
                         onClick = {
                             if (validateCode(userInputCode, pointData.code)) {
-                                // Poprawny kod
-                                Toast.makeText(context, "✅ Poprawny kod!", Toast.LENGTH_SHORT).show()
-                                onCodeCorrect(pointData) // Powiadom GamePage o sukcesie
-                                onDismiss() // Zamknij dialog
+                                Toast.makeText(context, "Poprawny kod!", Toast.LENGTH_SHORT).show()
+                                onCodeCorrect(pointData)
+                                onDismiss()
                             } else {
-                                // Błędny kod
-                                Toast.makeText(context, "❌ Błędny kod, spróbuj ponownie.", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Błędny kod.", Toast.LENGTH_SHORT).show()
                             }
-                        }
+                        },
+                        modifier = Modifier
+                            .height(32.dp)
+                            .defaultMinSize(minHeight = 1.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
+                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
                     ) {
-                        Text("Sprawdź")
+                        Text("Sprawdź", style = MaterialTheme.typography.labelSmall)
                     }
                 }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .padding(6.dp)
+                    .height(32.dp)
+                    .defaultMinSize(minHeight = 1.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                shape = RoundedCornerShape(10.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+            ) {
+                Text("Zamknij", style = MaterialTheme.typography.labelSmall)
             }
         }
     )
 }
+
