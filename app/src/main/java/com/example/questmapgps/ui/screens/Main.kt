@@ -32,7 +32,8 @@ import com.example.questmapgps.ui.theme.QuestMapGPSTheme
 @Composable
 fun Main_Scaffold(
     parentNav: NavHostController,
-    gameViewModel: GameViewModel
+    gameViewModel: GameViewModel,
+    startDestination: String = Routes.MAIN.GAME
 ) {
     val innerNavController = rememberNavController()
 
@@ -40,7 +41,13 @@ fun Main_Scaffold(
         Scaffold(
             topBar = {
                 Topbar(
-                    onNavigateGamePage = { innerNavController.navigate(Routes.MAIN.GAME) },
+                    onNavigateGamePage = {
+                        // Zabezpieczenie przed wielokrotnym dodawaniem na stos
+                        innerNavController.navigate(Routes.MAIN.GAME) {
+                            popUpTo(innerNavController.graph.startDestinationId)
+                            launchSingleTop = true
+                        }
+                    },
                     onNavigateToSettingsPage = { innerNavController.navigate(Routes.MAIN.SETTINGS) },
                     onNavigateAboutAppPage = { innerNavController.navigate(Routes.MAIN.ABOUT) }
                 )
@@ -49,7 +56,7 @@ fun Main_Scaffold(
 
             NavHost(
                 navController = innerNavController,
-                startDestination = Routes.MAIN.GAME,
+                startDestination = startDestination, // Używamy parametru tutaj
                 modifier = Modifier.padding(innerPadding)
             ) {
 
@@ -68,7 +75,13 @@ fun Main_Scaffold(
 
                 composable(Routes.MAIN.ABOUT) {
                     AboutAppPage(
-                        onNavigateBack = { innerNavController.popBackStack() }
+                        onNavigateBack = { innerNavController.popBackStack() },
+                        onLogout = {
+                            gameViewModel.logout()
+                            parentNav.navigate(Routes.WELCOME) {
+                                popUpTo(Routes.WELCOME) { inclusive = true }
+                            }
+                        }
                     )
                 }
             }
@@ -156,6 +169,4 @@ fun BottomBar(
             InfoButton(phone = "123456789")
         }
     }
-
 }
-

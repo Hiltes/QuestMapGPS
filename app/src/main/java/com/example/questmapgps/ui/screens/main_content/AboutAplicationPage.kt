@@ -3,9 +3,6 @@ package com.example.questmapgps.ui.screens.main_content
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.ScrollableState
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -16,16 +13,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle.Companion.Italic
-import androidx.compose.ui.text.font.FontVariation.italic
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.questmapgps.ui.components.AppButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AboutAppPage(onNavigateBack: () -> Unit) {
+fun AboutAppPage(
+    onNavigateBack: () -> Unit,
+    onLogout: () -> Unit
+) {
 
     val context = LocalContext.current
     val phone = "123456789"
@@ -54,7 +54,7 @@ fun AboutAppPage(onNavigateBack: () -> Unit) {
         )
 
 
-        Text("O Bierzącej Grze",
+        Text("O Bieżącej Grze",
             style = TextStyle(fontSize = 30.sp, textAlign= TextAlign.Justify),
             modifier = Modifier.padding(vertical = 30.dp),
             color = MaterialTheme.colorScheme.onPrimary,)
@@ -80,11 +80,19 @@ fun AboutAppPage(onNavigateBack: () -> Unit) {
             },
             textDecoration = TextDecoration.Underline
         )
+
+        Spacer(modifier = Modifier.height(30.dp))
+
+        AppButton(buttonText = "Wyloguj") {
+            onLogout()
+        }
+
+        Spacer(modifier = Modifier.height(30.dp))
     }
 }
 
 @Preview
 @Composable
 fun AboutAppPagePreview (){
-    AboutAppPage({})
+    AboutAppPage({}, {})
 }

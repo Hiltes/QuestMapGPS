@@ -5,7 +5,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -20,13 +19,17 @@ fun SettingsPage(
     Column(Modifier.fillMaxSize()) {
 
         Text(
-            "Ranking",
+            text = "Ranking",
             style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
+            color = MaterialTheme.colorScheme.onPrimary
         )
 
         LazyColumn(Modifier.weight(1f)) {
-            itemsIndexed(users, key = { _, u -> u.username }) { i, user ->
+            itemsIndexed(
+                items = users,
+                key = { i, user -> "${user.username}_$i" }
+            ) { i, user ->
                 RankingItem(
                     position = i + 1,
                     name = user.username,
@@ -46,7 +49,6 @@ fun SettingsPage(
     }
 }
 
-
 @Composable
 fun RankingItem(position: Int, name: String, points: Int) {
     Row(
@@ -55,7 +57,7 @@ fun RankingItem(position: Int, name: String, points: Int) {
             .padding(12.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text("$position. $name")
-        Text("${points} pkt")
+        Text("$position. $name", color=MaterialTheme.colorScheme.onPrimary)
+        Text("$points pkt", color=MaterialTheme.colorScheme.onPrimary)
     }
 }

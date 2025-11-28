@@ -1,6 +1,5 @@
 package com.example.questmapgps.ui.screens.main_content
 
-//import com.example.questmapgps.ui.components.LockTrackingButton
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -11,6 +10,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,13 +20,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -43,8 +45,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -56,7 +58,6 @@ import com.example.questmapgps.ui.screens.BottomBar
 import com.example.questmapgps.ui.sensors.LocationHelper
 import com.example.questmapgps.ui.sensors.PointData
 import com.example.questmapgps.ui.sensors.PointInfoDialog
-import com.example.questmapgps.ui.theme.QuestMapGPSTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -83,35 +84,14 @@ import org.maplibre.spatialk.geojson.Geometry
 import org.maplibre.spatialk.geojson.Point
 import org.maplibre.spatialk.geojson.Position
 import java.io.File
-import java.util.Locale
-import java.util.Locale.getDefault
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.pow
-import kotlin.math.sin
-import kotlin.math.sqrt
 import kotlin.time.Duration.Companion.seconds
-
-fun distanceMeters(
-    lat1: Double, lon1: Double,
-    lat2: Double, lon2: Double
-): Double {
-    val R = 6371e3
-    val dLat = Math.toRadians(lat2 - lat1)
-    val dLon = Math.toRadians(lon2 - lon1)
-    val a = sin(dLat / 2).pow(2.0) +
-            cos(Math.toRadians(lat1)) *
-            cos(Math.toRadians(lat2)) *
-            sin(dLon / 2).pow(2.0)
-    val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-    return R * c
-}
 
 @Composable
 fun GamePage(
     gameViewModel: GameViewModel,
     onNavigateBack: () -> Unit
 ) {
+    val userData by gameViewModel.userData.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -127,8 +107,8 @@ fun GamePage(
         var loadError by remember { mutableStateOf<String?>(null) }
         var selectedPoint by remember { mutableStateOf<PointData?>(null) }
 
-        var selectedFeature by remember {mutableStateOf<Feature<Geometry, JsonObject?>?>(null)}
-        var clustering by remember{mutableStateOf(false)}
+        var selectedFeature by remember { mutableStateOf<Feature<Geometry, JsonObject?>?>(null) }
+        var clustering by remember { mutableStateOf(false) }
 
 
         val camera = rememberCameraState(
@@ -229,6 +209,12 @@ fun GamePage(
             )
         }
 
+
+        LaunchedEffect(Unit) {
+            delay(1000)
+            NotificationHelper(context).showDebugWelcomeNotification()
+        }
+
         LaunchedEffect(Unit) {
             try {
                 withContext(Dispatchers.IO) {
@@ -252,10 +238,8 @@ fun GamePage(
                             try {
                                 val newLocation = locationHelper.getCurrentLocation()
                                 if (newLocation != null) {
-                                    // Aktualizuj stan tylko jeśli nowa lokalizacja nie jest nullem
                                     location = newLocation
                                 } else {
-                                    // Jeśli jest null, nie rób nic i zachowaj starą pozycję.
                                     Log.w("GamePage", "Otrzymano null z LocationHelper. Zachowuję ostatnią znaną pozycję.")
                                 }
 
@@ -291,18 +275,11 @@ fun GamePage(
                     baseStyle = BaseStyle.Uri("https://api.maptiler.com/maps/basic-v2/style.json?key=3EzNiP9jPuozp4ZM6TiX")
 
                 ) {
-                    if(clustering==false) {
+                    if (clustering == false) {
 
                         val myGeoJsonSource = rememberGeoJsonSource(
                             data = GeoJsonData.Uri(file!!.toUri().toString()),
-                            // Clusterowanie ikonek
-                            //options = GeoJsonOptions(cluster=false, clusterMaxZoom = SourceDefaults.MAX_ZOOM - 1)
                         )
-
-                        // pobieranie punktów z których user wpisał poprawnie kod
-//                    val userData by gameViewModel.userData.collectAsState()
-//                    val solvedcodePoints = userData?.codesSolvedPoints ?: emptyList()
-
 
                         SymbolLayer(
                             id = "my-geojson-points",
@@ -311,28 +288,16 @@ fun GamePage(
                             iconSize = const(1.75f),
                             minZoom = 0.0f,
                             maxZoom = 22.0f,
-
-                            // Clusterowanie ikonek
-//                        minZoom = 0.0f,
-//                        maxZoom = 22.0f,
-//                        iconAllowOverlap = const(true),
-//                        iconIgnorePlacement = const(true),
                             onClick = { features ->
                                 selectedFeature = features.firstOrNull()
                                 ClickResult.Consume
                             }
                         )
-                    }else{
+                    } else {
                         val myGeoJsonSource = rememberGeoJsonSource(
                             data = GeoJsonData.Uri(file!!.toUri().toString()),
-                            // Clusterowanie ikonek
-                            options = GeoJsonOptions(cluster=false, clusterMaxZoom = SourceDefaults.MAX_ZOOM - 1)
+                            options = GeoJsonOptions(cluster = false, clusterMaxZoom = SourceDefaults.MAX_ZOOM - 1)
                         )
-
-                        // pobieranie punktów z których user wpisał poprawnie kod
-//                    val userData by gameViewModel.userData.collectAsState()
-//                    val solvedcodePoints = userData?.codesSolvedPoints ?: emptyList()
-
 
                         SymbolLayer(
                             id = "my-geojson-points",
@@ -340,10 +305,10 @@ fun GamePage(
                             iconImage = image(point),
                             iconSize = const(1.75f),
                             // Clusterowanie ikonek
-                        minZoom = 0.0f,
-                        maxZoom = 22.0f,
-                        iconAllowOverlap = const(true),
-                        iconIgnorePlacement = const(true),
+                            minZoom = 0.0f,
+                            maxZoom = 22.0f,
+                            iconAllowOverlap = const(true),
+                            iconIgnorePlacement = const(true),
                             onClick = { features ->
                                 selectedFeature = features.firstOrNull()
                                 ClickResult.Consume
@@ -352,23 +317,25 @@ fun GamePage(
                     }
                     selectedFeature?.let { feature ->
                         val pos = (feature.geometry as Point).coordinates
-                        val point = PointData(
+                        val pointData = PointData(
                             name = feature.getStringProperty("name").toString(),
                             description = feature.getStringProperty("description").toString(),
                             hint = feature.getStringProperty("hint").toString(),
                             code = feature.getStringProperty("code").toString(),
-                            latitude =  pos.latitude,
+                            latitude = pos.latitude,
                             longitude = pos.longitude
                         )
 
-                            PointInfoDialog(
-                                pointData = point,
-                                onDismiss = { selectedFeature = null },
-                                onCodeCorrect = {
-                                    gameViewModel.markCodeAsSolved(pointName = point.name)
-                                }
-                            )
+                        val isSolved = userData?.codesSolvedPoints?.contains(pointData.name) == true
 
+                        PointInfoDialog(
+                            pointData = pointData,
+                            onDismiss = { selectedFeature = null },
+                            isSolved = isSolved,
+                            onCodeCorrect = {
+                                gameViewModel.markCodeAsSolved(pointName = pointData.name)
+                            }
+                        )
                     }
 
                     location?.let { loc ->
@@ -387,13 +354,6 @@ fun GamePage(
                 }
             }
         }
-
-//        Row(
-//            verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.Start,
-//            modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(horizontal = 10.dp, vertical = 30.dp)
-//        ) {
-//            LockTrackingButton(operation = { lock = !lock }, 5, lock, modifier = Modifier.fillMaxWidth())
-//        }
 
         BottomBar(
             modifier = Modifier
@@ -429,9 +389,45 @@ fun GamePage(
                     }
                 }
             },
-            clustering= {
+            clustering = {
                 clustering = !clustering
             }
         )
+
+        userData?.let { user ->
+            Card(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = 16.dp, bottom = 32.dp)
+                    .border(2.dp, MaterialTheme.colorScheme.onPrimary,shape=RoundedCornerShape(12.dp)),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.9f)
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+            ) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                ) {
+                    val displayName = if (user.username.length > 10) {
+                        user.username.take(10) + "..."
+                    } else {
+                        user.username
+                    }
+
+                    Text(
+                        text = displayName,
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                    Text(
+                        text = "${user.points} pkt",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            }
+        }
     }
 }

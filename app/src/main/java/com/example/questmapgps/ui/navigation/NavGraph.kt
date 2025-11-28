@@ -21,10 +21,14 @@ fun NavGraph(
     routeToNavigateTo: String?,
     onNavigationHandled: () -> Unit
 ) {
-    // Obsługa zewnętrznych poleceń nawigacji
+
     LaunchedEffect(routeToNavigateTo) {
         if (routeToNavigateTo != null) {
-            navController.navigate(routeToNavigateTo)
+            // Sprawdzamy obecną trasę, aby uniknąć błędów
+            val currentRoute = navController.currentBackStackEntry?.destination?.route
+            if (currentRoute != routeToNavigateTo) {
+                navController.navigate(routeToNavigateTo)
+            }
             onNavigationHandled()
         }
     }
@@ -37,14 +41,20 @@ fun NavGraph(
         modifier = modifier
     ) {
 
-        // EKRAN POWITALNY
         composable(Routes.WELCOME) {
             WelcomePage(
-                onNavigateToFormPage = { navController.navigate(Routes.FORM) }
+                gameViewModel = gameViewModel,
+                onNavigateToFormPage = {
+                    navController.navigate(Routes.FORM)
+                },
+                onNavigateToGamePage = {
+                    navController.navigate(Routes.MAIN.GAME) {
+                        popUpTo(Routes.WELCOME) { inclusive = true }
+                    }
+                }
             )
         }
 
-        // FORMULARZ
         composable(Routes.FORM) {
             FormPage(
                 onStart = { name ->
@@ -57,11 +67,20 @@ fun NavGraph(
             )
         }
 
-
         composable(Routes.MAIN.GAME) {
             Main_Scaffold(
                 parentNav = navController,
-                gameViewModel = gameViewModel
+                gameViewModel = gameViewModel,
+                startDestination = Routes.MAIN.GAME
+            )
+        }
+
+
+        composable(Routes.MAIN.ABOUT) {
+            Main_Scaffold(
+                parentNav = navController,
+                gameViewModel = gameViewModel,
+                startDestination = Routes.MAIN.ABOUT
             )
         }
     }

@@ -1,6 +1,5 @@
 package com.example.questmapgps.ui.screens
 
-import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,29 +10,37 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.questmapgps.ui.components.AppButton
 import com.example.questmapgps.ui.components.AppLogo
+import com.example.questmapgps.ui.screens.main_content.GameViewModel
 import com.example.questmapgps.ui.screens.main_content.NotificationHelper
-import com.example.questmapgps.ui.theme.QuestMapGPSTheme
 import kotlinx.coroutines.delay
 
-
-@OptIn(ExperimentalMaterial3Api::class)
-
 @Composable
-fun WelcomePage(onNavigateToFormPage: () -> Unit) {
+fun WelcomePage(
+    gameViewModel: GameViewModel,
+    onNavigateToFormPage: () -> Unit,
+    onNavigateToGamePage: () -> Unit
+) {
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        delay(500)
-        NotificationHelper(context).showDebugWelcomeNotification()
+
+    val userData by gameViewModel.userData.collectAsState()
+
+
+    LaunchedEffect(userData) {
+        if (userData != null && userData!!.username.isNotBlank()) {
+            delay(100)
+            onNavigateToGamePage()
+        }
     }
 
     Column(
@@ -62,6 +69,10 @@ fun WelcomePage(onNavigateToFormPage: () -> Unit) {
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onPrimary
         )
-        AppButton("Enter") { onNavigateToFormPage() }
+
+
+        AppButton("Enter") {
+            onNavigateToFormPage()
+        }
     }
 }

@@ -1,26 +1,25 @@
 package com.example.questmapgps
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.app.ActivityCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.example.questmapgps.ui.navigation.NavGraph
-import com.example.questmapgps.ui.navigation.Routes // NOWY IMPORT
+import com.example.questmapgps.ui.navigation.Routes
 import com.example.questmapgps.ui.screens.main_content.NotificationHelper
 import com.example.questmapgps.ui.theme.QuestMapGPSTheme
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
-import android.util.Log
-
-
 
 class MainActivity : ComponentActivity() {
 
@@ -32,17 +31,20 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-       val requestNotificationPermission =
+        val requestNotificationPermission =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
                 if (granted) {
-                    // Po uzyskaniu zgody możesz odpalić debug notification
-                    NotificationHelper(this).showDebugWelcomeNotification()
+
+                    Log.d("MainActivity", "Permission granted")
                 } else {
                     Log.w("MainActivity", "User denied POST_NOTIFICATIONS permission")
                 }
             }
+
         handleIntent(intent)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+
+        // 2. Potem sprawdź uprawnienia
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ActivityCompat.checkSelfPermission(
                     this,
                     Manifest.permission.POST_NOTIFICATIONS
@@ -51,6 +53,7 @@ class MainActivity : ComponentActivity() {
                 requestNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
+
         setContent {
             QuestMapGPSTheme {
                 val navController = rememberNavController()
@@ -67,15 +70,19 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        setIntent(intent)
         handleIntent(intent)
     }
 
     private fun handleIntent(intent: Intent?) {
-        when (intent?.action) {
+        if (intent == null) return
+
+        when (intent.action) {
             NotificationHelper.ACTION_SHOW_POINT -> {
                 val pointId = intent.getIntExtra(NotificationHelper.EXTRA_POINT_ID, -1)
                 if (pointId != -1) {
                     this.pointIdToShow = pointId
+
                 }
             }
             NotificationHelper.ACTION_NAVIGATE_TO_ABOUT -> {

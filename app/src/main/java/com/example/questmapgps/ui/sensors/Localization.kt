@@ -23,6 +23,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -63,10 +64,10 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
 class LocationHelper(context: Context) {
-    // ... (ta klasa pozostaje bez zmian)
     private val fusedLocationProviderClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
     private val applicationContext: Context = context.applicationContext
+
     @SuppressLint("MissingPermission")
     suspend fun getCurrentLocation(): Pair<Double, Double>? {
         val hasPermission = ContextCompat.checkSelfPermission(
@@ -115,26 +116,15 @@ class LocationHelper(context: Context) {
     }
 }
 
-// NOWA FUNKCJA POMOCNICZA DO WALIDACJI
-/**
- * Sprawdza, czy podany przez użytkownika kod jest poprawny.
- * Ignoruje wielkość liter i białe znaki na początku/końcu.
- */
 fun validateCode(userInput: String, correctCode: String): Boolean {
-    // Normalizacja obu stringów - małe litery i usunięcie spacji
-    val normalizedUserInput = userInput.trim().lowercase()
-    val normalizedCorrectCode = correctCode.trim().lowercase()
-
-    // Zwykłe porównanie
-    return normalizedUserInput == normalizedCorrectCode
+    return userInput.trim().lowercase() == correctCode.trim().lowercase()
 }
 
-
-// ZMIENIONY KOMPONENT DIALOGU
 @Composable
 fun PointInfoDialog(
     pointData: PointData,
     onDismiss: () -> Unit,
+    isSolved: Boolean,
     onCodeCorrect: (PointData) -> Unit
 ) {
     var userInputCode by remember { mutableStateOf("") }
@@ -161,7 +151,6 @@ fun PointInfoDialog(
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
 
-                // OPIS
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         "Opis",
@@ -178,7 +167,6 @@ fun PointInfoDialog(
 
                 HorizontalDivider()
 
-                // WSKAZÓWKA
                 Column {
                     Text(
                         "Wskazówka",
@@ -196,7 +184,6 @@ fun PointInfoDialog(
 
                 HorizontalDivider()
 
-                // KOD — NOWY, ŁADNY BOX
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -209,13 +196,13 @@ fun PointInfoDialog(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = Icons.Default.Lock,
+                            imageVector = if (isSolved) Icons.Default.Check else Icons.Default.Lock,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            tint = if (isSolved) Color.Green else MaterialTheme.colorScheme.onSecondaryContainer
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            "Wpisz kod",
+                            text = if (isSolved) "Zadanie wykonane" else "Wpisz kod",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                             fontWeight = FontWeight.Bold
@@ -225,16 +212,17 @@ fun PointInfoDialog(
                     Spacer(Modifier.height(10.dp))
 
                     OutlinedTextField(
-                        value = userInputCode,
+                        value = if (isSolved) pointData.code else userInputCode,
                         onValueChange = { userInputCode = it },
                         label = { Text("Kod") },
+                        // BLOKADA POLA
+                        enabled = !isSolved,
                         modifier = Modifier.fillMaxWidth(),
                         textStyle = MaterialTheme.typography.bodySmall,
                     )
 
                     Spacer(Modifier.height(14.dp))
 
-                    // PRZYCISK SPRAWDZANIA
                     Button(
                         onClick = {
                             if (validateCode(userInputCode, pointData.code)) {
@@ -245,17 +233,22 @@ fun PointInfoDialog(
                                 Toast.makeText(context, "Błędny kod.", Toast.LENGTH_SHORT).show()
                             }
                         },
+                        enabled = !isSolved,
                         modifier = Modifier
                             .height(32.dp)
                             .defaultMinSize(minHeight = 1.dp),
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
+                            // ZMIANA KOLORU NA SZARY JEŚLI ROZWIĄZANE
+                            containerColor = if (isSolved) Color.Gray else MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary
                         ),
                         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
                     ) {
-                        Text("Sprawdź", style = MaterialTheme.typography.labelSmall)
+                        Text(
+                            text = if (isSolved) "ROZWIĄZANO" else "Sprawdź",
+                            style = MaterialTheme.typography.labelSmall
+                        )
                     }
                 }
             }
@@ -279,4 +272,3 @@ fun PointInfoDialog(
         }
     )
 }
-

@@ -6,7 +6,6 @@ import com.example.questmapgps.data.FirebaseRepository
 import com.example.questmapgps.ui.data.UserData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class RankingViewModel(
@@ -24,18 +23,23 @@ class RankingViewModel(
         isLoading = true
 
         viewModelScope.launch {
-            val nextPage = repository.getUsersPage(pageSize, lastPoints)
+            try {
+                val nextPage = repository.getUsersPage(pageSize, lastPoints)
+                val validPage = nextPage.filter { it.username.isNotBlank() }
 
-            if (nextPage.isNotEmpty()) {
-                _users.value = _users.value + nextPage
-                lastPoints = nextPage.last().points
+                if (validPage.isNotEmpty()) {
+                    _users.value = _users.value + validPage
+                    lastPoints = validPage.last().points
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                isLoading = false
             }
-
-            isLoading = false
         }
     }
 
     init {
-        loadNextPage()  // startujemy od pierwszej strony
+        loadNextPage()
     }
 }

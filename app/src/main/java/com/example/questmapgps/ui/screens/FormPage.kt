@@ -1,5 +1,6 @@
 package com.example.questmapgps.ui.screens
 
+import android.Manifest
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,6 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.questmapgps.ui.components.AppButton
 import com.example.questmapgps.ui.components.AppButtonSmall
 import com.example.questmapgps.ui.components.AppLogo
@@ -23,7 +25,7 @@ fun FormPage(
     onExit: () -> Unit
 ) {
     var playerName by remember { mutableStateOf("") }
-
+    var showNameAlert by remember { mutableStateOf(false) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -83,7 +85,7 @@ fun FormPage(
                         unfocusedTextColor = MaterialTheme.colorScheme.tertiary
                     ),
 
-                )
+                    )
             }
         }
         Row(
@@ -93,9 +95,49 @@ fun FormPage(
                 .padding(top = 16.dp)
         ) {
             AppButton(buttonText = "Exit") { onExit() }
-            AppButton(buttonText = "Start") { onStart(playerName) }
+            AppButton(buttonText = "Start") {
+                if(playerName.isBlank()){ // Sprawdzanie również pustych spacji
+                    showNameAlert = true // Ustawienie flagi na true, aby pokazać alert
+                } else {
+                    onStart(playerName.trim()) // Usunięcie białych znaków na początku/końcu
+                }
+            }
         }
     }
+
+    if (showNameAlert) {
+        NameAlert(onDismiss = { showNameAlert = false }) // Przekazanie funkcji do zamknięcia
+    }
+}
+
+@Composable
+fun NameAlert(onDismiss: () -> Unit){
+    AlertDialog(
+        onDismissRequest = { onDismiss() }, // Użycie onDismiss
+        title = { Text("Niepoprawna nazwa", color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.labelSmall, fontSize = 20.sp, textAlign = TextAlign.Center) },
+        text = { Text("Musisz wpisać w polę swoją nazwę\nbez niej nie przejdziemy dalej...", modifier = Modifier.padding(vertical = 10.dp, horizontal = 10.dp), color = MaterialTheme.colorScheme.onPrimary) },
+        confirmButton = {
+            TextButton(
+                onClick = { onDismiss() }, // Zamknięcie dialogu po kliknięciu OK
+                modifier = Modifier
+                    .padding(6.dp)
+                    .height(32.dp)
+                    .defaultMinSize(minHeight = 1.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                shape = RoundedCornerShape(10.dp),
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    "OK", // Zmieniono tekst na samo "OK"
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+        }
+    )
 }
 
 @Preview(showBackground = true)
