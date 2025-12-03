@@ -57,7 +57,7 @@ class NotificationHelper(private val context: Context) {
         )
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // Upewnij się, że masz tę ikonę
+            .setSmallIcon(R.drawable.ic_stat_name)
             .setContentTitle("Jesteś blisko punktu!")
             .setContentText(pointName)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
