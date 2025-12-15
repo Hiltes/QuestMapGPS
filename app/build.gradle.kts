@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.questmapgps"
+    namespace = "com.hiltes.questmapgps"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.questmapgps"
+        applicationId = "com.hiltes.questmapgps"
         minSdk = 32
         targetSdk = 35
         versionCode = 1
